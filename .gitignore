@@ -33,12 +33,19 @@ install-pyenv-win.ps1
 =======
 backend/data/*
 backend/models/*
+backend/recommendations/*
+backend/recommendations_with_emails/*
 backend/evaluate_lightfm.py
 backend/prediction.py
 backend/predictor_1.py
 backend/recommender_lightfm.py
 backend/recommender.py
 backend/tempCodeRunnerFile.py
+<<<<<<< HEAD
 
 backennd/*.npz
 
+=======
+backend/*.npz
+backend/__pycache__/*
+>>>>>>> 80de75f (Integrate backend flask app with train_lightfm.py)
