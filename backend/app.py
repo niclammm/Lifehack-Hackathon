@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import io
 import traceback
-# from train_lightfm import train_model
+from train_lightfm import train_model
 import os
 # Column name constants for customers data
 class CustomerHeaders:
@@ -496,14 +496,14 @@ def upload_data_json(num_of_rewards=3):
         analytics = calculate_basic_analytics()
         
         print("Step 6: Analytics completed, returning response...")
-        # recommended_rewards = train_model(interactions_df, customers_df, products_df, num_of_rewards)
+        recommended_rewards = train_model(interactions_df, customers_df, products_df, num_of_rewards)
         return jsonify({
             "message": "Data uploaded successfully", 
             "status": "success",
             "uploaded": uploaded_data,
             "debug_info": debug_info,  # Show actual headers for debugging
             "analytics": analytics,
-            # "recommended_rewards": recommended_rewards
+            "recommended_rewards": recommended_rewards
         })
     
     except Exception as e:
