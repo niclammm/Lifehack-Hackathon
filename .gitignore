@@ -7,3 +7,4 @@ backend/recommender_lightfm.py
 backend/recommender.py
 backend/tempCodeRunnerFile.py
 backend/*.npz
+.env
