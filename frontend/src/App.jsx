@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 
-// import './App.css'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+
 import CSVUploader from './CSVUploader'
 import FileUploader from './FileUploader'
 
@@ -10,8 +12,8 @@ function App() {
   return (
     <>
 
-      <FileUploader/>
-      <>Hello</>
+      <FileUploader />
+      
     </>
   )
 }

@@ -31,68 +31,149 @@ const FileUploader = () => {
     reader.readAsText(file);
   };
 
-  const uploadDataToBackend = async () => {
-    setUploadStatus({ loading: true, success: false, error: null, message: 'Uploading...' });
-    setAnalytics(null);
-    setRenderKey(0);
+  // const uploadDataToBackend = async () => {
+  //   setUploadStatus({ loading: true, success: false, error: null, message: 'Uploading...' });
+  //   setAnalytics(null);
+  //   setRenderKey(0);
 
-    try {
-      console.log('Making request to backend...');
-      const response = await fetch('https://lifehack-hackathon.onrender.com/upload_data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(csvData)
-      });
+  //   try {
+  //     console.log('Making request to backend...');
+  //     const response = await fetch('http://127.0.0.1:10000/upload_data', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(csvData)
+  //     });
 
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
+  //     console.log('Response status:', response.status);
+  //     console.log('Response ok:', response.ok);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! status: ${response.status}`);
+  //     }
 
-      const result = await response.json();
-      console.log('=== BACKEND RESPONSE ===');
-      console.log('Full result:', result);
-      console.log('Result status:', result.status);
-      console.log('Result analytics:', result.analytics);
-      console.log('====================');
+  //     const result = await response.json();
+  //     console.log('=== BACKEND RESPONSE ===');
+  //     console.log('Full result:', result);
+  //     console.log('Result status:', result.status);
+  //     console.log('Result analytics:', result.analytics);
+  //     console.log('====================');
       
-      if (result.status === 'success') {
-        setUploadStatus({
-          loading: false,
-          success: true,
-          error: null,
-          message: result.message,
-          debugInfo: result.debug_info
-        });
+  //     if (result.status === 'success') {
+  //       setUploadStatus({
+  //         loading: false,
+  //         success: true,
+  //         error: null,
+  //         message: result.message,
+  //         debugInfo: result.debug_info
+  //       });
         
-        // Set analytics and force re-render
-        console.log('Setting analytics to:', result.analytics);
-        setAnalytics(result.analytics);
-        setRenderKey(prev => prev + 1); // Force re-render
+  //       // Set analytics and force re-render
+  //       console.log('Setting analytics to:', result.analytics);
+  //       setAnalytics(result.analytics);
+  //       setRenderKey(prev => prev + 1); // Force re-render
         
-      } else {
-        setUploadStatus({
-          loading: false,
-          success: false,
-          error: result.error,
-          message: 'Upload failed',
-          debugInfo: null
-        });
+  //     } else {
+  //       setUploadStatus({
+  //         loading: false,
+  //         success: false,
+  //         error: result.error,
+  //         message: 'Upload failed',
+  //         debugInfo: null
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error('Upload error:', error);
+  //     setUploadStatus({
+  //       loading: false,
+  //       success: false,
+  //       error: error.message,
+  //       message: 'Upload failed'
+  //     });
+  //   }
+  // };
+
+  // Updated upload function for better large file handling
+const uploadDataToBackend = async () => {
+  setUploadStatus({ loading: true, success: false, error: null, message: 'Uploading...' });
+  setAnalytics(null);
+  setRenderKey(0);
+
+  try {
+    console.log('Creating FormData for file upload...');
+    const formData = new FormData();
+    
+    // Add files directly to FormData (much more efficient than JSON)
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    let hasFiles = false;
+    
+    fileInputs.forEach((input, index) => {
+      if (input.files && input.files[0]) {
+        const fileTypes = ['customers', 'products', 'interactions'];
+        const fileType = fileTypes[index];
+        formData.append(fileType, input.files[0]);
+        hasFiles = true;
+        console.log(`Added ${fileType} file: ${input.files[0].name} (${input.files[0].size} bytes)`);
       }
-    } catch (error) {
-      console.error('Upload error:', error);
+    });
+    
+    if (!hasFiles) {
+      throw new Error('No files selected');
+    }
+    
+    console.log('Making request to backend...');
+    
+    // Use the new file upload endpoint
+    const response = await fetch('http://127.0.0.1:10000/upload_files', {
+      method: 'POST',
+      body: formData  // Send FormData directly, not JSON
+      // Don't set Content-Type header - let browser set it with boundary for multipart
+    });
+
+    console.log('Response status:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log('=== BACKEND RESPONSE ===');
+    console.log('Full result:', result);
+    
+    if (result.status === 'success') {
+      setUploadStatus({
+        loading: false,
+        success: true,
+        error: null,
+        message: result.message,
+        debugInfo: result.debug_info
+      });
+      
+      console.log('Setting analytics to:', result.analytics);
+      setAnalytics(result.analytics);
+      setRenderKey(prev => prev + 1);
+      
+    } else {
       setUploadStatus({
         loading: false,
         success: false,
-        error: error.message,
-        message: 'Upload failed'
+        error: result.error,
+        message: 'Upload failed',
+        debugInfo: null
       });
     }
-  };
+  } catch (error) {
+    console.error('Upload error:', error);
+    setUploadStatus({
+      loading: false,
+      success: false,
+      error: error.message,
+      message: 'Upload failed'
+    });
+  }
+};
 
   const MetricCard = ({ title, value, subtitle, bgColor = "bg-blue-50", textColor = "text-blue-900" }) => (
     <div className={`${bgColor} p-4 rounded-lg border min-h-[120px]`}>
