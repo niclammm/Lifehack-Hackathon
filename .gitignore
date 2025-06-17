@@ -6,4 +6,4 @@ backend/predictor_1.py
 backend/recommender_lightfm.py
 backend/recommender.py
 backend/tempCodeRunnerFile.py
-backennd/*.npz
+backend/*.npz
