@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, Package, Blend, } from 'lucide-react';
+import { Users, Package, Blend, Gift } from 'lucide-react';
 
 const FileUploaderWithAnalytics = () => {
   const [csvData, setCsvData] = useState({
@@ -16,7 +16,7 @@ const FileUploaderWithAnalytics = () => {
     debugInfo: null
   });
 
-  const [analytics, setAnalytics] = useState(null);
+  const [recommendations, setRecommendations] = useState(null);
 
   const handleFileUpload = (fileType, file) => {
     if (!file) return;
@@ -32,11 +32,11 @@ const FileUploaderWithAnalytics = () => {
   };
 
   const uploadDataToBackend = async () => {
-    setUploadStatus({ loading: true, success: false, error: null, message: 'Uploading...' });
-    setAnalytics(null);
+    setUploadStatus({ loading: true, success: false, error: null, message: 'Training model and generating recommendations...' });
+    setRecommendations(null);
 
     try {
-      const response = await fetch('http://localhost:5000/upload_data', {
+      const response = await fetch('http://127.0.0.1:5000/upload_data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,8 +55,10 @@ const FileUploaderWithAnalytics = () => {
           debugInfo: result.debug_info
         });
         
-        // Set analytics data from upload response
-        setAnalytics(result.analytics);
+        // Set recommendations data from upload response
+        if (result.recommended_rewards) {
+          setRecommendations(result.recommended_rewards);
+        }
       } else {
         setUploadStatus({
           loading: false,
@@ -76,25 +78,51 @@ const FileUploaderWithAnalytics = () => {
     }
   };
 
-  const MetricCard = ({ title, value, subtitle, bgColor = "bg-blue-50", textColor = "text-blue-900" }) => (
-    <div className={`${bgColor} p-4 rounded-lg border`}>
-      <h3 className={`text-sm font-medium ${textColor} opacity-75`}>{title}</h3>
-      <p className={`text-2xl font-bold ${textColor} mt-1`}>{value}</p>
-      {subtitle && <p className={`text-sm ${textColor} opacity-60 mt-1`}>{subtitle}</p>}
+  const RecommendationCard = ({ customerId, customerData }) => (
+    <div className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-center gap-2 mb-3">
+        <Gift className="w-5 h-5 text-purple-600" />
+        <h3 className="font-semibold text-gray-900">Customer {customerId}</h3>
+      </div>
+      
+      <div className="mb-3">
+        <span className="text-sm text-gray-600">Email: </span>
+        <span className={`text-sm font-medium ${customerData.email === "No Email Provided" ? 'text-red-600' : 'text-green-600'}`}>
+          {customerData.email}
+        </span>
+      </div>
+      
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-gray-700">Recommended Rewards:</p>
+        <ul className="space-y-2">
+          {customerData.rewards.map((reward, index) => {
+            // Extract discount percentage from reward string
+            const discountMatch = reward.match(/(\d+)% off/);
+            const discount = discountMatch ? parseInt(discountMatch[1]) : 0;
+            
+            return (
+              <li key={index} className={`text-sm p-3 rounded border-l-4 ${
+                discount > 0 
+                  ? 'bg-green-50 border-green-400 text-green-800' 
+                  : 'bg-gray-50 border-gray-400 text-gray-700'
+              }`}>
+                <div className="font-medium">{reward}</div>
+                {discount > 0 && (
+                  <div className="text-xs mt-1 opacity-75">Active discount available!</div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </div>
   );
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
-
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
       <header className="text-center mb-3">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Data Upload & Analytics</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Recommendation System</h1>
+        <p className="text-gray-600">Upload your CSV files to generate personalized customer rewards</p>
       </header>
       
       {/* File Upload Section */}
@@ -103,11 +131,11 @@ const FileUploaderWithAnalytics = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div>
-            <div  className="flex items-center gap-2 mb-2">
-            <Users className="w-6 h-6 text-blue-600 mb-2" />
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Customers CSV:
-            </label>
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="w-6 h-6 text-blue-600 mb-2" />
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Customers CSV:
+              </label>
             </div>
             <input 
               type="file" 
@@ -119,10 +147,10 @@ const FileUploaderWithAnalytics = () => {
           
           <div>
             <div className="flex items-center gap-2 mb-2">
-            <Package className="w-6 h-6 text-green-600 mb-2" />
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Products CSV:
-            </label>
+              <Package className="w-6 h-6 text-green-600 mb-2" />
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Products CSV:
+              </label>
             </div>
             <input 
               type="file" 
@@ -134,10 +162,10 @@ const FileUploaderWithAnalytics = () => {
           
           <div>
             <div className="flex items-center gap-2 mb-2">
-            <Blend className="w-6 h-6 text-purple-600 mb-2" />
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Interactions CSV:
-            </label>
+              <Blend className="w-6 h-6 text-purple-600 mb-2" />
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Interactions CSV:
+              </label>
             </div>
             <input 
               type="file" 
@@ -170,9 +198,9 @@ const FileUploaderWithAnalytics = () => {
         <button 
           onClick={uploadDataToBackend}
           disabled={(!csvData.customers && !csvData.products && !csvData.interactions) || uploadStatus.loading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
         >
-          {uploadStatus.loading ? 'Uploading...' : 'Upload Data & Generate Analytics'}
+          {uploadStatus.loading ? 'Training Model & Generating Recommendations...' : 'Upload Data & Generate Recommendations'}
         </button>
         
         {/* Upload Status */}
@@ -187,149 +215,136 @@ const FileUploaderWithAnalytics = () => {
             
             {/* Debug Information */}
             {uploadStatus.debugInfo && (
-              <div className="mt-3 p-3 bg-gray-100 rounded border">
-                <p className="font-medium text-gray-800 mb-2">📋 Detected Headers (for debugging):</p>
-                {uploadStatus.debugInfo.customers_headers && (
-                  <div className="mb-2">
-                    <span className="font-medium text-blue-700">Customers:</span>
-                    <span className="text-sm ml-2">{uploadStatus.debugInfo.customers_headers.join(', ')}</span>
-                  </div>
-                )}
-                {uploadStatus.debugInfo.products_headers && (
-                  <div className="mb-2">
-                    <span className="font-medium text-green-700">Products:</span>
-                    <span className="text-sm ml-2">{uploadStatus.debugInfo.products_headers.join(', ')}</span>
-                  </div>
-                )}
-                {uploadStatus.debugInfo.interactions_headers && (
-                  <div className="mb-2">
-                    <span className="font-medium text-purple-700">Interactions:</span>
-                    <span className="text-sm ml-2">{uploadStatus.debugInfo.interactions_headers.join(', ')}</span>
-                  </div>
-                )}
-                <div className="mt-2 text-xs text-gray-600">
-                  <p><strong>Expected Interactions headers:</strong> CustomerID, ProductID, purchases, NumberOfClicks, interaction</p>
-                  {uploadStatus.debugInfo.columns_auto_created && (
-                    <p className="text-blue-600 mt-1"><strong>✨ {uploadStatus.debugInfo.columns_auto_created}</strong></p>
+              <details className="mt-3">
+                <summary className="cursor-pointer font-medium text-gray-800 mb-2">📋 Detected Headers (click to expand)</summary>
+                <div className="p-3 bg-gray-100 rounded border">
+                  {uploadStatus.debugInfo.customers_headers && (
+                    <div className="mb-2">
+                      <span className="font-medium text-blue-700">Customers:</span>
+                      <span className="text-sm ml-2">{uploadStatus.debugInfo.customers_headers.join(', ')}</span>
+                    </div>
                   )}
+                  {uploadStatus.debugInfo.products_headers && (
+                    <div className="mb-2">
+                      <span className="font-medium text-green-700">Products:</span>
+                      <span className="text-sm ml-2">{uploadStatus.debugInfo.products_headers.join(', ')}</span>
+                    </div>
+                  )}
+                  {uploadStatus.debugInfo.interactions_headers && (
+                    <div className="mb-2">
+                      <span className="font-medium text-purple-700">Interactions:</span>
+                      <span className="text-sm ml-2">{uploadStatus.debugInfo.interactions_headers.join(', ')}</span>
+                    </div>
+                  )}
+                  <div className="mt-2 text-xs text-gray-600">
+                    <p><strong>Expected Interactions headers:</strong> CustomerID, ProductID, NumberOfPurchases, Rating, Email</p>
+                    {uploadStatus.debugInfo.columns_auto_created && (
+                      <p className="text-blue-600 mt-1"><strong>✨ {uploadStatus.debugInfo.columns_auto_created}</strong></p>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </details>
             )}
           </div>
         )}
       </div>
 
-      {/* Analytics Section */}
-      {analytics && (
+      {/* Recommendations Section */}
+      {recommendations && (
         <div className="space-y-6">
-          <h2 className="text-2xl font-semibold text-gray-900">📊 Analytics Dashboard</h2>
+          <div className="flex items-center gap-3">
+            <Gift className="w-8 h-8 text-purple-600" />
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-900"> Generated Recommendations</h2>
+              <p className="text-gray-600">Personalized rewards based on LightFM collaborative filtering</p>
+            </div>
+          </div>
           
-          {/* Data Status */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-medium mb-3">Data Status</h3>
-            <div className="grid grid-cols-3 gap-4">
-              <div className={`flex items-center gap-2 ${analytics.data_loaded?.customers ? 'text-green-600' : 'text-red-600'}`}>
-                <div className={`w-3 h-3 rounded-full ${analytics.data_loaded?.customers ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <span>Customers Data</span>
-              </div>
-              <div className={`flex items-center gap-2 ${analytics.data_loaded?.products ? 'text-green-600' : 'text-red-600'}`}>
-                <div className={`w-3 h-3 rounded-full ${analytics.data_loaded?.products ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <span>Products Data</span>
-              </div>
-              <div className={`flex items-center gap-2 ${analytics.data_loaded?.interactions ? 'text-green-600' : 'text-red-600'}`}>
-                <div className={`w-3 h-3 rounded-full ${analytics.data_loaded?.interactions ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <span>Interactions Data</span>
-              </div>
+          {/* Summary Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <h4 className="text-sm font-medium text-blue-900 opacity-75">Total Customers</h4>
+              <p className="text-2xl font-bold text-blue-900 mt-1">{Object.keys(recommendations).length}</p>
+            </div>
+            
+            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+              <h4 className="text-sm font-medium text-green-900 opacity-75">With Valid Email</h4>
+              <p className="text-2xl font-bold text-green-900 mt-1">
+                {Object.values(recommendations).filter(customer => customer.email !== "No Email Provided").length}
+              </p>
+            </div>
+            
+            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+              <h4 className="text-sm font-medium text-purple-900 opacity-75">Total Rewards</h4>
+              <p className="text-2xl font-bold text-purple-900 mt-1">
+                {Object.values(recommendations).reduce((total, customer) => total + customer.rewards.length, 0)}
+              </p>
+            </div>
+
+            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+              <h4 className="text-sm font-medium text-yellow-900 opacity-75">Active Discounts</h4>
+              <p className="text-2xl font-bold text-yellow-900 mt-1">
+                {Object.values(recommendations).reduce((total, customer) => 
+                  total + customer.rewards.filter(reward => {
+                    const discountMatch = reward.match(/(\d+)% off/);
+                    return discountMatch && parseInt(discountMatch[1]) > 0;
+                  }).length, 0
+                )}
+              </p>
             </div>
           </div>
 
-          {/* Key Metrics */}
-          {analytics.basic_stats && (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <MetricCard
-                  title="Average Purchases per User"
-                  value={analytics.basic_stats.average_purchases_per_user || 'N/A'}
-                  subtitle={analytics.basic_stats.total_customers ? `${analytics.basic_stats.total_customers} total users` : ''}
-                  bgColor="bg-blue-50"
-                  textColor="text-blue-900"
-                />
-                
-                <MetricCard
-                  title="User Retention Rate"
-                  value={analytics.basic_stats.retention_rate_percentage ? `${analytics.basic_stats.retention_rate_percentage}%` : 'N/A'}
-                  subtitle={analytics.basic_stats.repeat_customers ? `${analytics.basic_stats.repeat_customers} repeat customers` : ''}
-                  bgColor="bg-green-50"
-                  textColor="text-green-900"
-                />
-                
-                <MetricCard
-                  title="Total Purchases"
-                  value={analytics.basic_stats.total_purchases || 'N/A'}
-                  subtitle={analytics.basic_stats.total_clicks ? `${analytics.basic_stats.total_clicks} total clicks` : ''}
-                  bgColor="bg-purple-50"
-                  textColor="text-purple-900"
-                />
-                
-                <MetricCard
-                  title="Unique Users"
-                  value={analytics.basic_stats.unique_users_count || 'N/A'}
-                  subtitle="Active customers"
-                  bgColor="bg-yellow-50"
-                  textColor="text-yellow-900"
-                />
-              </div>
+          {/* Recommendations Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {Object.entries(recommendations).map(([customerId, customerData]) => (
+              <RecommendationCard 
+                key={customerId} 
+                customerId={customerId} 
+                customerData={customerData} 
+              />
+            ))}
+          </div>
 
-              {/* Revenue Metrics (if available) */}
-              {analytics.basic_stats.total_revenue && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <MetricCard
-                    title="Total Revenue"
-                    value={formatCurrency(analytics.basic_stats.total_revenue)}
-                    subtitle="Total sales amount"
-                    bgColor="bg-emerald-50"
-                    textColor="text-emerald-900"
-                  />
-                  
-                  <MetricCard
-                    title="Average Revenue per User"
-                    value={formatCurrency(analytics.basic_stats.average_revenue_per_user)}
-                    subtitle="Revenue per customer"
-                    bgColor="bg-emerald-50"
-                    textColor="text-emerald-900"
-                  />
-                </div>
-              )}
-
-              {/* Top Products */}
-              {analytics.basic_stats.top_products && analytics.basic_stats.top_products.length > 0 && (
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-lg font-semibold mb-4">🏆 Top Products</h3>
-                  <div className="space-y-3">
-                    {analytics.basic_stats.top_products.map((product, index) => (
-                      <div key={product.product_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <span className="font-medium">#{index + 1} Product {product.product_id}</span>
-                          {product.category && <span className="text-sm text-gray-600 ml-2">({product.category})</span>}
-                        </div>
-                        <div className="text-right">
-                          <div className="font-semibold">{product.total_purchases} purchases</div>
-                          {product.price && <div className="text-sm text-gray-600">{formatCurrency(product.price)} each</div>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {analytics.error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-800 font-medium">Analytics Error</p>
-              <p className="text-red-600 text-sm mt-1">{analytics.error}</p>
+          {/* Export Section */}
+          <div className="bg-gray-50 rounded-lg p-6 border">
+            <h3 className="text-lg font-semibold mb-3">📤 Export Options</h3>
+            <p className="text-gray-600 text-sm mb-4">
+              Model trained successfully! Recommendations have been generated and can be exported for email campaigns.
+            </p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => {
+                  const dataStr = JSON.stringify(recommendations, null, 2);
+                  const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                  const url = URL.createObjectURL(dataBlob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = 'recommendations.json';
+                  link.click();
+                }}
+                className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors text-sm"
+              >
+                Download JSON
+              </button>
+              <button 
+                onClick={() => {
+                  const csvContent = "Customer ID,Email,Rewards\n" + 
+                    Object.entries(recommendations).map(([id, data]) => 
+                      `"${id}","${data.email}","${data.rewards.join('; ')}"`
+                    ).join('\n');
+                  const csvBlob = new Blob([csvContent], {type: 'text/csv'});
+                  const url = URL.createObjectURL(csvBlob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = 'recommendations.csv';
+                  link.click();
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm"
+              >
+                Download CSV
+              </button>
             </div>
-          )}
+          </div>
         </div>
       )}
     </div>
