@@ -35,7 +35,7 @@ const FileUploaderWithAnalytics = () => {
     setAnalytics(null);
 
     try {
-      const response = await fetch('http://localhost:5000/upload_data', {
+      const response = await fetch('http://127.0.0.1:5000/upload_data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -261,7 +261,7 @@ const FileUploaderWithAnalytics = () => {
                 
                 <MetricCard
                   title="Unique Users"
-                  value={analytics.basic_stats.unique_users_count || 'N/A'}
+                  value={analytics.basic_stats.unique_users || 'N/A'}
                   subtitle="Active customers"
                   bgColor="bg-yellow-50"
                   textColor="text-yellow-900"
