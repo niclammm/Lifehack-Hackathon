@@ -26,7 +26,7 @@ def calculate_discount_percentage(user_data, product_data, interaction_data):
     Returns:
         float: Discount percentage (0-100).
     """
-    discount = 0
+    discount = 5
 
     # User-based discount
     if user_data["AgeGroup"] == "Young Adult":
@@ -45,7 +45,7 @@ def calculate_discount_percentage(user_data, product_data, interaction_data):
     # Interaction-based discount
     if not interaction_data.empty:
         rating = interaction_data["Rating"].iloc[0]
-        purchases = interaction_data["Purchases"].iloc[0]
+        purchases = interaction_data["NumberOfPurchases"].iloc[0]
         if rating >= 4:
             discount += 5  # Reward high ratings
         if purchases > 2:
@@ -61,43 +61,54 @@ def generate_reward_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
 
 def train_model(interactions_df, user_features_df, item_features_df, num_of_rewards):
+    print("Starting model training...")
     try:
         # Prepare LightFM dataset
+        print("Interactions DataFrame:", interactions_df.shape, interactions_df.columns)
+        print("User Features DataFrame:", user_features_df.shape, user_features_df.columns)
+        print("Item Features DataFrame:", item_features_df.shape, item_features_df.columns)
         dataset = Dataset()
 
+        print("Fitting dataset with users and items...")
         # Fit users and items with their features
         dataset.fit(
             users=user_features_df["CustomerID"],
             items=pd.concat([interactions_df["ProductID"], item_features_df["ProductID"]]).unique(),
             user_features=user_features_df["Gender"].unique().tolist() + user_features_df["AgeGroup"].unique().tolist(),
-            item_features=item_features_df["ProductCategory"].unique().tolist() + item_features_df["Price"].unique().tolist()
+            item_features=item_features_df["ProductCategory"].unique().tolist() + item_features_df["Price"].astype(str).unique().tolist()
         )
 
+        print("Dataset fitted. Building interaction matrices...")
         # Build interactions matrix
         (interactions, _) = dataset.build_interactions([
             (row["CustomerID"], row["ProductID"], row["Rating"] + row["NumberOfPurchases"])
             for _, row in interactions_df.iterrows()
         ])
 
+        print("Interactions matrix built. Splitting into train and test sets...")
         # Build user features matrix
         user_features = dataset.build_user_features([
             (row["CustomerID"], [row["Gender"], row["AgeGroup"]])
             for _, row in user_features_df.iterrows()
         ])
 
+        print("User features matrix built. Building item features matrix...")
         # Build item features matrix
         item_features = dataset.build_item_features([
             (row["ProductID"], [row["ProductCategory"], str(row["Price"])])
             for _, row in item_features_df.iterrows()
         ])
 
+        print("Dataset and matrices prepared. Starting model training...")
+        
         # Train LightFM model
         model = LightFM(no_components=30, loss='warp')
         model.fit(interactions, user_features=user_features, item_features=item_features, epochs=10, num_threads=4)
 
         # Save model to a file
+        os.makedirs("backend/models", exist_ok=True)
         model_id = str(uuid.uuid4())
-        model_path = f"models/lightfm_model_{model_id}.pkl"
+        model_path = f"backend/models/lightfm_model_{model_id}.pkl"
         with open(model_path, "wb") as f:
             pickle.dump(model, f)
 
@@ -109,7 +120,10 @@ def train_model(interactions_df, user_features_df, item_features_df, num_of_rewa
         num_items = len(item_id_map)
 
         recommendations = {}
-        for user_id, internal_user_id in user_id_map.items():
+        for index, (user_id, internal_user_id) in enumerate(user_id_map.items()):
+            if index >= 10:  # Limit to the first 10 users
+                break
+
             scores = model.predict(internal_user_id, np.arange(num_items), user_features=user_features, item_features=item_features)
             top_items = np.argsort(-scores)[:num_of_rewards]  # Get top N items based on scores
             
@@ -122,6 +136,12 @@ def train_model(interactions_df, user_features_df, item_features_df, num_of_rewa
             
             for item_id in top_items:
                 product_id = reverse_item_map[item_id]
+                product_match = item_features_df[item_features_df["ProductID"] == product_id]
+                if product_match.empty:
+                    print(f"⚠️ Skipping missing ProductID: {product_id}")
+                    continue  # or handle gracefully
+
+                product_data = product_match.iloc[0]
                 product_data = item_features_df[item_features_df["ProductID"] == product_id].iloc[0]
                 
                 interaction_data = interactions_df[
@@ -136,16 +156,16 @@ def train_model(interactions_df, user_features_df, item_features_df, num_of_rewa
                 
                 # Append reward string
                 rewards.append(f"{discount_percentage}% off {product_id} <{reward_code}>")
-                
+            
             # Append user_id and rewards to recommendations_with_discounts
-            recommendations.append({
-                "user_id": user_id,
+            recommendations[user_id] = {
                 "email": email,
-                "rewards": rewards  
-            })
+                "rewards": rewards
+            }
             
         # Save recommendations to a JSON file
-        recommendations_path = f"recommendations/recommendations_{model_id}.json"
+        os.makedirs("backend/recommendations", exist_ok=True)
+        recommendations_path = f"backend/recommendations/recommendations_{model_id}.json"
         with open(recommendations_path, "w") as f:
             json.dump(recommendations, f)
 
@@ -153,23 +173,27 @@ def train_model(interactions_df, user_features_df, item_features_df, num_of_rewa
         
         # Filter recommendations to include only user_ids with valid emails
         recommendations_with_emails = [
-            recommendation for recommendation in recommendations if recommendation["email"] != "No Email Provided"
+            recommendation for recommendation in recommendations.values() if recommendation["email"] != "No Email Provided"
         ]
 
         # Save recommendations_with_emails to a JSON file
-        recommendations_with_emails_path = f"recommendations_with_emails/recommendations_{model_id}.json"
+        os.makedirs("backend/recommendations_with_emails", exist_ok=True)
+        recommendations_with_emails_path = f"backend/recommendations_with_emails/recommendations_{model_id}.json"
         with open(recommendations_with_emails_path, "w") as f:
             json.dump(recommendations_with_emails, f)
 
         print(f"Recommendations with emails saved to {recommendations_with_emails_path}")
 
-        return jsonify({
+        return {
             "message": "Model trained successfully!",
             "model_id": model_id,
             "recommendations": recommendations,
-        })
+        }
 
     except Exception as e:
+        import traceback
+        print("Error occurred during model training:", str(e))
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 def get_recommendations(model_id):
