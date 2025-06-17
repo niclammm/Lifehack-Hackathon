@@ -21,6 +21,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node-related
 node_modules
 dist
 dist-ssr
@@ -37,10 +38,25 @@ dist-ssr
 *.sln
 *.sw?
 
-# Ignore virtual environments
+# Python virtual environments
 .venv/
 venv/
-
 .python-version
 install-pyenv-win.ps1
 
+<<<<<<< HEAD
+=======
+# Backend generated data
+backend/data/*
+backend/models/*
+backend/recommendations/*
+backend/recommendations_with_emails/*
+backend/evaluate_lightfm.py
+backend/prediction.py
+backend/predictor_1.py
+backend/recommender_lightfm.py
+backend/recommender.py
+backend/tempCodeRunnerFile.py
+backend/*.npz
+backend/__pycache__/*
+>>>>>>> 72714f9 (Resolve merge conflicts)

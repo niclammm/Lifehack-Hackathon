@@ -23,7 +23,15 @@ class InteractionHeaders:
     CUSTOMER_ID = 'CustomerID'
     PRODUCT_ID = 'ProductID'
     PURCHASES = 'NumberOfPurchases'
+<<<<<<< HEAD
     RATINGS = 'Rating'
+=======
+<<<<<<< HEAD
+    RATINGS = 'Rating',
+=======
+    RATINGS = 'Rating'
+>>>>>>> 72714f9 (Resolve merge conflicts)
+>>>>>>> 87d6aba (Resolve merge conflicts)
     EMAIL = 'Email'
 
 import os
@@ -502,8 +510,17 @@ def upload_data_json(num_of_rewards=3):
             "status": "success",
             "uploaded": uploaded_data,
             "debug_info": debug_info,  # Show actual headers for debugging
+<<<<<<< HEAD
             "analytics": analytics,
             # "recommended_rewards": recommended_rewards
+=======
+            # "analytics": analytics,
+<<<<<<< HEAD
+            "recommended_rewards": recommended_rewards
+=======
+            "recommended_rewards": recommended_rewards['recommendations']
+>>>>>>> 72714f9 (Resolve merge conflicts)
+>>>>>>> 87d6aba (Resolve merge conflicts)
         })
     
     except Exception as e:
