@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -29,3 +30,14 @@ venv/
 
 .python-version
 install-pyenv-win.ps1
+=======
+backend/data/*
+backend/models/*
+backend/evaluate_lightfm.py
+backend/prediction.py
+backend/predictor_1.py
+backend/recommender_lightfm.py
+backend/recommender.py
+backend/tempCodeRunnerFile.py
+backennd/*.npz
+>>>>>>> 01532bc (Added backend code: train_lightfm.py)
