@@ -558,9 +558,10 @@ const uploadDataToBackend = async () => {
     console.log('Making request to backend...');
     
     // Use the new file upload endpoint
-    const response = await fetch('http://127.0.0.1:10000/upload_files', {
+    const response = await fetch('https://lifehack-hackathon.onrender.com/upload_files', {
       method: 'POST',
-      body: formData  // Send FormData directly, not JSON
+      body: formData,  // Send FormData directly, not JSON
+      mode: 'no-cors'
       // Don't set Content-Type header - let browser set it with boundary for multipart
     });
 

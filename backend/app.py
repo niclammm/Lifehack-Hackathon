@@ -552,7 +552,18 @@ from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for React frontend
+# CORS(app)  # Enable CORS for React frontend
+
+CORS(app, origins=[
+    "https://lifehack-9fd5cbecx-jan-kai1s-projects.vercel.app",
+    "https://lifeh*.vercel.app",  # Allow all your Vercel deployments
+    "http://localhost:3000",      # For local development
+    "http://localhost:3001",       # Alternative local port
+    "http://localhost:5174/"
+], 
+supports_credentials=True,
+allow_headers=["Content-Type", "Authorization"])
+
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
