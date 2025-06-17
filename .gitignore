@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -8,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node-related
 node_modules
 dist
 dist-ssr
@@ -24,13 +24,13 @@ dist-ssr
 *.sln
 *.sw?
 
-# Ignore virtual environments
+# Python virtual environments
 .venv/
 venv/
-
 .python-version
 install-pyenv-win.ps1
-=======
+
+# Backend generated data
 backend/data/*
 backend/models/*
 backend/recommendations/*
@@ -41,11 +41,5 @@ backend/predictor_1.py
 backend/recommender_lightfm.py
 backend/recommender.py
 backend/tempCodeRunnerFile.py
-<<<<<<< HEAD
-
-backennd/*.npz
-
-=======
 backend/*.npz
 backend/__pycache__/*
->>>>>>> 80de75f (Integrate backend flask app with train_lightfm.py)
