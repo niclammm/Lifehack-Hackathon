@@ -121,7 +121,7 @@ def train_model(interactions_df, user_features_df, item_features_df, num_of_rewa
 
         recommendations = {}
         for index, (user_id, internal_user_id) in enumerate(user_id_map.items()):
-            if index >= 10:  # Limit to the first 10 users
+            if index >= 50:  # Limit to the first 10 users
                 break
 
             scores = model.predict(internal_user_id, np.arange(num_items), user_features=user_features, item_features=item_features)
