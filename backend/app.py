@@ -3,6 +3,7 @@ from flask_cors import CORS
 import pandas as pd
 import io
 from train_lightfm import train_model
+import os
 
 # Column name constants for customers data
 class CustomerHeaders:
@@ -316,4 +317,5 @@ def upload_data_json(num_of_rewards=3):
 #         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 10000))  # Default to 10000 if PORT not set
+    app.run(host='0.0.0.0', port=port)
