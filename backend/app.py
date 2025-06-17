@@ -180,7 +180,7 @@ def upload_data_json(num_of_rewards=3):
             "uploaded": uploaded_data,
             "debug_info": debug_info,  # Show actual headers for debugging
             # "analytics": analytics,
-            "recommended_rewards": recommended_rewards['recommendations']
+            "recommended_rewards": recommended_rewards
         })
     
     except Exception as e:
