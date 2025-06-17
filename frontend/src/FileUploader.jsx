@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-
+import RecommendationsRenderer from './Recommendations';
 const FileUploader = () => {
   const [csvData, setCsvData] = useState({
     customers: null,
     products: null,
     interactions: null
   });
+
+  const [recommendations, setRecommendations] = useState(null);
+
 
   const [uploadStatus, setUploadStatus] = useState({
     loading: false,
@@ -72,6 +75,8 @@ const FileUploader = () => {
         // Set analytics and force re-render
         console.log('Setting analytics to:', result.analytics);
         setAnalytics(result.analytics);
+        setRecommendations(result.recommended_rewards); // Add this line
+
         setRenderKey(prev => prev + 1); // Force re-render
         
       } else {
@@ -425,6 +430,10 @@ const FileUploader = () => {
           </div>
         )}
       </div>
+      {/* Add this after your analytics section */}
+      {recommendations && (
+      <RecommendationsRenderer recommendationsData={recommendations} />
+)}
     </div>
   );
 };
