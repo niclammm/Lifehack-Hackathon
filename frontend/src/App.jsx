@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
-import './App.css'
 import CSVUploader from './CSVUploader'
 import FileUploader from "./FileUploader"
 
@@ -12,8 +11,8 @@ function App() {
   return (
     <>
 
-      <FileUploader></FileUploader>
-      <>Hello</>
+      <FileUploader />
+      
     </>
   )
 }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Users, Package, Blend, } from 'lucide-react';
 
 const FileUploaderWithAnalytics = () => {
   const [csvData, setCsvData] = useState({
@@ -92,7 +93,9 @@ const FileUploaderWithAnalytics = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <header className="text-center mb-3">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Data Upload & Analytics</h1>
+      </header>
       
       {/* File Upload Section */}
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -100,38 +103,47 @@ const FileUploaderWithAnalytics = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div>
+            <div  className="flex items-center gap-2 mb-2">
+            <Users className="w-6 h-6 text-blue-600 mb-2" />
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Customers CSV:
             </label>
+            </div>
             <input 
               type="file" 
               accept=".csv"
               onChange={(e) => handleFileUpload('customers', e.target.files[0])}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer cursor-pointer"
             />
           </div>
           
           <div>
+            <div className="flex items-center gap-2 mb-2">
+            <Package className="w-6 h-6 text-green-600 mb-2" />
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Products CSV:
             </label>
+            </div>
             <input 
               type="file" 
               accept=".csv"
               onChange={(e) => handleFileUpload('products', e.target.files[0])}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 file:cursor-pointer cursor-pointer"
             />
           </div>
           
           <div>
+            <div className="flex items-center gap-2 mb-2">
+            <Blend className="w-6 h-6 text-purple-600 mb-2" />
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Interactions CSV:
             </label>
+            </div>
             <input 
               type="file" 
               accept=".csv"
               onChange={(e) => handleFileUpload('interactions', e.target.files[0])}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 file:cursor-pointer cursor-pointer"
             />
           </div>
         </div>
