@@ -21,7 +21,7 @@ class InteractionHeaders:
     CUSTOMER_ID = 'CustomerID'
     PRODUCT_ID = 'ProductID'
     PURCHASES = 'NumberOfPurchases'
-    RATINGS = 'Rating',
+    RATINGS = 'Rating'
     EMAIL = 'Email'
 
 app = Flask(__name__)
