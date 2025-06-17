@@ -79,26 +79,6 @@ def train_model(interactions_df, user_features_df, item_features_df, num_of_rewa
         )
 
         print("Dataset fitted. Building interaction matrices...")
-<<<<<<< HEAD
-        # Build interactions matrix
-        (interactions, _) = dataset.build_interactions([
-            (row["CustomerID"], row["ProductID"], row["Rating"] + row["NumberOfPurchases"])
-            for _, row in interactions_df.iterrows()
-        ])
-
-        print("Interactions matrix built. Splitting into train and test sets...")
-        # Build user features matrix
-        user_features = dataset.build_user_features([
-            (row["CustomerID"], [row["Gender"], row["AgeGroup"]])
-            for _, row in user_features_df.iterrows()
-        ])
-
-        print("User features matrix built. Building item features matrix...")
-        # Build item features matrix
-        item_features = dataset.build_item_features([
-            (row["ProductID"], [row["ProductCategory"], str(row["Price"])])
-            for _, row in item_features_df.iterrows()
-=======
         # FIXED: Changed from row["column"] to row[1]["column"] since iterrows() returns (index, row) tuples
         # OLD CODE CAUSING ERROR: (row["CustomerID"], row["ProductID"], row["Rating"] + row["NumberOfPurchases"])
         # NEW CODE: Access the actual row data using row[1] or use itertuples() instead
@@ -121,7 +101,6 @@ def train_model(interactions_df, user_features_df, item_features_df, num_of_rewa
         item_features = dataset.build_item_features([
             (row[1]["ProductID"], [row[1]["ProductCategory"], str(row[1]["Price"])])
             for row in item_features_df.iterrows()
->>>>>>> 72714f9 (Resolve merge conflicts)
         ])
 
         print("Dataset and matrices prepared. Starting model training...")
@@ -167,12 +146,8 @@ def train_model(interactions_df, user_features_df, item_features_df, num_of_rewa
                     continue  # or handle gracefully
 
                 product_data = product_match.iloc[0]
-<<<<<<< HEAD
-                product_data = item_features_df[item_features_df["ProductID"] == product_id].iloc[0]
-=======
                 # REMOVED: Duplicate line that was overwriting product_data
                 # OLD CODE: product_data = item_features_df[item_features_df["ProductID"] == product_id].iloc[0]
->>>>>>> 72714f9 (Resolve merge conflicts)
                 
                 interaction_data = interactions_df[
                     (interactions_df["CustomerID"] == user_id) & (interactions_df["ProductID"] == product_id)
@@ -224,11 +199,7 @@ def train_model(interactions_df, user_features_df, item_features_df, num_of_rewa
         import traceback
         print("Error occurred during model training:", str(e))
         traceback.print_exc()
-<<<<<<< HEAD
-        return jsonify({"error": str(e)}), 500
-=======
         return {"error": str(e)}  # FIXED: Removed jsonify() since this function doesn't return a Flask response
->>>>>>> 72714f9 (Resolve merge conflicts)
 
 def get_recommendations(model_id):
     try:

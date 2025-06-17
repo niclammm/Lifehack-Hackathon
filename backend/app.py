@@ -23,15 +23,7 @@ class InteractionHeaders:
     CUSTOMER_ID = 'CustomerID'
     PRODUCT_ID = 'ProductID'
     PURCHASES = 'NumberOfPurchases'
-<<<<<<< HEAD
     RATINGS = 'Rating'
-=======
-<<<<<<< HEAD
-    RATINGS = 'Rating',
-=======
-    RATINGS = 'Rating'
->>>>>>> 72714f9 (Resolve merge conflicts)
->>>>>>> 87d6aba (Resolve merge conflicts)
     EMAIL = 'Email'
 
 import os
@@ -42,6 +34,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 CORS(app)  # Enable CORS for React frontend
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
+app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Create upload directory if it doesn't exist
@@ -510,17 +503,8 @@ def upload_data_json(num_of_rewards=3):
             "status": "success",
             "uploaded": uploaded_data,
             "debug_info": debug_info,  # Show actual headers for debugging
-<<<<<<< HEAD
             "analytics": analytics,
             # "recommended_rewards": recommended_rewards
-=======
-            # "analytics": analytics,
-<<<<<<< HEAD
-            "recommended_rewards": recommended_rewards
-=======
-            "recommended_rewards": recommended_rewards['recommendations']
->>>>>>> 72714f9 (Resolve merge conflicts)
->>>>>>> 87d6aba (Resolve merge conflicts)
         })
     
     except Exception as e:
@@ -530,6 +514,108 @@ def upload_data_json(num_of_rewards=3):
         return jsonify({"error": str(e), "status": "error"}), 400
 
 
+# Improved Flask endpoint for large files
+@app.route('/upload_files', methods=['POST'])
+def upload_files():
+    """Upload CSV files directly (not as JSON) for better memory efficiency"""
+    global customers_df, products_df, interactions_df
+    
+    print("=== FILE UPLOAD ENDPOINT HIT ===")
+    
+    try:
+        uploaded_data = {}
+        debug_info = {}
+        
+        # Process each file type
+        file_types = ['customers', 'products', 'interactions']
+        
+        for file_type in file_types:
+            if file_type in request.files:
+                file = request.files[file_type]
+                if file and file.filename and allowed_file(file.filename):
+                    print(f"Processing {file_type} file: {file.filename}")
+                    
+                    try:
+                        # Read file in chunks to avoid memory issues
+                        if file_type == 'customers':
+                            customers_df = pd.read_csv(file.stream, chunksize=None)  # For smaller files
+                            uploaded_data['customers'] = f"Loaded {len(customers_df)} customer records"
+                            debug_info['customers_headers'] = list(customers_df.columns)
+                            
+                        elif file_type == 'products':
+                            products_df = pd.read_csv(file.stream, chunksize=None)
+                            uploaded_data['products'] = f"Loaded {len(products_df)} product records"
+                            debug_info['products_headers'] = list(products_df.columns)
+                            
+                        elif file_type == 'interactions':
+                            # For large interactions file, use chunked reading
+                            chunk_list = []
+                            chunk_size = 10000  # Process 10k rows at a time
+                            
+                            print(f"Reading large interactions file in chunks of {chunk_size}")
+                            for chunk_num, chunk in enumerate(pd.read_csv(file.stream, chunksize=chunk_size)):
+                                print(f"Processing chunk {chunk_num + 1} with {len(chunk)} rows")
+                                
+                                # Clean up columns for each chunk
+                                chunk.columns = chunk.columns.str.strip()
+                                
+                                # Apply the same column mapping logic
+                                header_mapping = {
+                                    'Rating': InteractionHeaders.RATINGS,
+                                    'NumberOfPurchases': InteractionHeaders.PURCHASES,
+                                    'Email': InteractionHeaders.EMAIL,
+                                    'CustomerID': InteractionHeaders.CUSTOMER_ID,
+                                    'ProductID': InteractionHeaders.PRODUCT_ID
+                                }
+                                
+                                rename_dict = {col: header_mapping[col] for col in chunk.columns if col in header_mapping}
+                                chunk.rename(columns=rename_dict, inplace=True)
+                                
+                                # Add missing columns
+                                if InteractionHeaders.EMAIL not in chunk.columns:
+                                    chunk[InteractionHeaders.EMAIL] = "No Email Provided"
+                                if InteractionHeaders.PURCHASES not in chunk.columns:
+                                    chunk[InteractionHeaders.PURCHASES] = 1
+                                if InteractionHeaders.RATINGS not in chunk.columns:
+                                    chunk[InteractionHeaders.RATINGS] = 4
+                                
+                                # Convert numeric columns
+                                numeric_columns = [InteractionHeaders.PURCHASES, InteractionHeaders.RATINGS]
+                                for col in numeric_columns:
+                                    if col in chunk.columns:
+                                        chunk[col] = pd.to_numeric(chunk[col], errors='coerce').fillna(1 if col == InteractionHeaders.PURCHASES else 4)
+                                
+                                chunk_list.append(chunk)
+                            
+                            # Combine all chunks
+                            interactions_df = pd.concat(chunk_list, ignore_index=True)
+                            print(f"Combined all chunks: final shape {interactions_df.shape}")
+                            
+                            uploaded_data['interactions'] = f"Loaded {len(interactions_df)} interaction records"
+                            debug_info['interactions_headers'] = list(interactions_df.columns)
+                    
+                    except Exception as e:
+                        print(f"Error processing {file_type}: {e}")
+                        return jsonify({"error": f"Error processing {file_type} file: {str(e)}", "status": "error"}), 400
+        
+        if not uploaded_data:
+            return jsonify({"error": "No valid files provided", "status": "error"}), 400
+        
+        print("Files processed successfully, calculating analytics...")
+        analytics = calculate_basic_analytics()
+        
+        return jsonify({
+            "message": "Files uploaded successfully", 
+            "status": "success",
+            "uploaded": uploaded_data,
+            "debug_info": debug_info,
+            "analytics": analytics
+        })
+    
+    except Exception as e:
+        print(f"CRITICAL ERROR in file upload: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e), "status": "error"}), 400
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))  # Default to 10000 if PORT not set
