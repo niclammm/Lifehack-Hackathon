@@ -6,7 +6,7 @@
 
 ## 🚀 Demo
 
-> 🔗 Live site: [https://lifehack-hackathon.onrender.com](https://lifehack-hackathon.onrender.com)
+> 🔗 Live site: https://lifehack-loyalytics.vercel.app/
 
 ---
 
