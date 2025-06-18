@@ -274,13 +274,19 @@ const RecommendationsRenderer = ({ recommendationsData }) => {
                   })}
                 </div>
               ) : (
-                <div className="text-center py-8 backdrop-blur-sm bg-slate-50/60 rounded-2xl border border-slate-200/50">
-                  <div className="w-16 h-16 bg-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Gift className="w-8 h-8 text-slate-400" />
-                  </div>
-                  <p className="text-slate-500 font-medium">No rewards generated for this customer</p>
-                  <p className="text-slate-400 text-sm mt-1">Try adjusting recommendation parameters</p>
-                </div>
+                <div className="backdrop-blur-sm bg-gray-50 rounded-2xl p-4 hover:shadow-lg transition-all duration-300">
+  <div className="flex items-center justify-center h-16">
+    <div className="flex items-center gap-3">
+      <div className="w-12 h-12 bg-slate-200 rounded-xl flex items-center justify-center">
+        <Gift className="w-6 h-6 text-slate-400" />
+      </div>
+      <div>
+        <p className="text-slate-500 font-medium">No rewards generated for this customer</p>
+        <p className="text-slate-400 text-sm">Try adjusting recommendation parameters</p>
+      </div>
+    </div>
+  </div>
+</div>
               )}
             </div>
           ))}
