@@ -1,12 +1,28 @@
-# React + Vite
+![alt text](image.png)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Loyalytics** is an AI-powered customer analytics platform that transforms raw customer data into personalized loyalty rewards. Businesses struggle with generic loyalty programs that fail to engage customers effectively. Our solution analyzes customer purchase patterns, preferences, and behavior to automatically generate targeted reward recommendations that increase retention rates and drive repeat purchases.
+Key Features:
+Upload customer, product, and interaction data via CSV files
+AI-powered analysis of purchase patterns and customer behavior
+Automated generation of personalized discount codes and product recommendations
+Analytics dashboard with key performance metrics
+Export capabilities for email marketing campaigns
+Personalized Recommendations of rewards for each customer, rewarding customer interaction and continued usage
 
-## Expanding the ESLint configuration
+To accurately provide data insights and generate tailored loyalty rewards for your customers, Loyalytics requires certain data from your company. Namely:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. Customer Data for each Customer
+    - CustomerID
+    - Gender
+    - Age Group
+2. Product Detail for each Product
+    - ProductID
+    - Product Category
+    - Price
+3. Transaction and Interaction information:
+    - CustomerID of purchasing Customer
+    - ProductID of purchased product
+    - Quantity Purchased (Number of Purchases)
+    - Email of Purchasing Customer
