@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Upload, FileText, BarChart3, Gift, Users, ShoppingCart, Star, TrendingUp, Zap, AlertCircle, CheckCircle2, Clock, Mail } from 'lucide-react';
-
+import React, { useState } from 'react';
+import RecommendationsRenderer from './Recommendations';
 const FileUploader = () => {
   const [csvData, setCsvData] = useState({
     customers: null,
     products: null,
     interactions: null
   });
+
+  const [recommendations, setRecommendations] = useState(null);
+
 
   const [uploadStatus, setUploadStatus] = useState({
     loading: false,
@@ -17,7 +19,7 @@ const FileUploader = () => {
   });
 
   const [analytics, setAnalytics] = useState(null);
-  const [recommendations, setRecommendations] = useState(null);
+
   const [numRewards, setNumRewards] = useState(3);
   const [renderKey, setRenderKey] = useState(0);
 
@@ -77,10 +79,7 @@ const FileUploader = () => {
         // Set analytics
         console.log('Setting analytics to:', result.analytics);
         setAnalytics(result.analytics);
-        
-        // Set recommendations - Fixed the key name
-        console.log('Setting recommendations to:', result.recommended_rewards);
-        setRecommendations(result.recommended_rewards);
+        setRecommendations(result.recommended_rewards); // Add this line
 
         setRenderKey(prev => prev + 1); // Force re-render
         
@@ -507,6 +506,10 @@ const FileUploader = () => {
           </div>
         )}
       </div>
+      {/* Add this after your analytics section */}
+      {recommendations && (
+        <RecommendationsRenderer recommendationsData={recommendations} />
+      )}
     </div>
   );
 };
