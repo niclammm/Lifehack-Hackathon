@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import RecommendationsRenderer from './Recommendations';
 const FileUploader = () => {
   const [csvData, setCsvData] = useState({
@@ -432,8 +432,8 @@ const FileUploader = () => {
       </div>
       {/* Add this after your analytics section */}
       {recommendations && (
-      <RecommendationsRenderer recommendationsData={recommendations} />
-)}
+        <RecommendationsRenderer recommendationsData={recommendations} />
+      )}
     </div>
   );
 };
