@@ -9,7 +9,6 @@ const FileUploader = () => {
 
   const [recommendations, setRecommendations] = useState(null);
 
-
   const [uploadStatus, setUploadStatus] = useState({
     loading: false,
     success: false,
@@ -20,6 +19,9 @@ const FileUploader = () => {
 
   const [analytics, setAnalytics] = useState(null);
   const [renderKey, setRenderKey] = useState(0); // Force re-render
+
+  const [sendModelId, setSendModelId] = useState('');
+  const [emailStatus, setEmailStatus] = useState('');
 
   const handleFileUpload = (fileType, file) => {
     if (!file) return;
@@ -99,6 +101,25 @@ const FileUploader = () => {
     }
   };
 
+  const sendBulkEmails = async () => {
+    try {
+      const response = await fetch("https://lifehack-hackathon.onrender.com/send-bulk-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model_id: sendModelId })
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setEmailStatus(`✅ Emails sent: ${result.sent_count}`);
+      } else {
+        setEmailStatus(`❌ Error: ${result.error}`);
+      }
+    } catch (err) {
+      setEmailStatus(`❌ Email dispatch failed: ${err.message}`);
+    }
+  };
+
   const MetricCard = ({ title, value, subtitle, bgColor = "bg-blue-50", textColor = "text-blue-900" }) => (
     <div className={`${bgColor} p-4 rounded-lg border min-h-[120px]`}>
       <h3 className={`text-sm font-medium ${textColor} opacity-75 mb-2`}>{title}</h3>
@@ -123,7 +144,7 @@ const FileUploader = () => {
   return (
     <div className="min-h-screen bg-gray-50" key={renderKey}>
       <div className="max-w-6xl mx-auto p-6 space-y-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Data Upload & Analytics</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">LOYALYTICS</h1>
         
         {/* File Upload Section */}
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -140,6 +161,9 @@ const FileUploader = () => {
                 onChange={(e) => handleFileUpload('customers', e.target.files[0])}
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
+              <p className="text-xs text-gray-500 mt-2">
+                Required fields: CustomerID, Gender, AgeGroup
+              </p>
             </div>
             
             <div>
@@ -152,6 +176,9 @@ const FileUploader = () => {
                 onChange={(e) => handleFileUpload('products', e.target.files[0])}
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
               />
+              <p className="text-xs text-gray-500 mt-2">
+                Required fields: ProductID, ProductCategory, Price
+              </p>
             </div>
             
             <div>
@@ -164,6 +191,9 @@ const FileUploader = () => {
                 onChange={(e) => handleFileUpload('interactions', e.target.files[0])}
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
               />
+              <p className="text-xs text-gray-500 mt-2">
+                Required fields: CustomerID, ProductID, Rating, NumberOfPurchases, Email
+              </p>
             </div>
           </div>
           
@@ -429,6 +459,29 @@ const FileUploader = () => {
             <p className="text-yellow-700">Analytics object exists but contains no data.</p>
           </div>
         )}
+
+        {/* Email Sending Section */}
+        <div className="mt-6 p-4 bg-white border border-gray-200 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold mb-3">📧 Send Emails via Recommendation System ID</h3>
+          <input
+            type="text"
+            placeholder="Enter Recommendation System ID"
+            value={sendModelId}
+            onChange={(e) => setSendModelId(e.target.value)}
+            className="border border-gray-300 px-3 py-2 rounded w-full mb-3"
+          />
+          <button
+            onClick={sendBulkEmails}
+            disabled={!sendModelId}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:bg-gray-400"
+          >
+            Send Emails
+          </button>
+
+          {emailStatus && (
+            <p className="mt-3 text-sm font-medium text-gray-700">{emailStatus}</p>
+          )}
+        </div>
       </div>
       {/* Add this after your analytics section */}
       {recommendations && (

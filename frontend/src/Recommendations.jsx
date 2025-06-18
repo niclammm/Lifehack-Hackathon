@@ -2,11 +2,16 @@ import React, { useState } from 'react';
 
 const RecommendationsRenderer = ({ recommendationsData }) => {
   const [copiedCode, setCopiedCode] = useState('');
+  const [showModelIdPopup, setShowModelIdPopup] = useState(true);
 
   // Handle the case where recommendationsData might be nested
   const recommendations = recommendationsData?.recommended_rewards?.recommendations || 
                          recommendationsData?.recommendations || 
                          recommendationsData || {};
+
+  const modelId = recommendationsData?.recommended_rewards?.model_id || 
+                  recommendationsData?.model_id || 
+                  null;
 
   const copyRewardCode = (code) => {
     navigator.clipboard.writeText(code);
@@ -14,9 +19,6 @@ const RecommendationsRenderer = ({ recommendationsData }) => {
     setTimeout(() => setCopiedCode(''), 2000);
   };
 
-  const modelId = recommendationsData?.recommended_rewards?.model_id || 
-                recommendationsData?.model_id || 
-                null;
   const parseReward = (reward) => {
     const discountMatch = reward.match(/(\d+)% off/);
     const productMatch = reward.match(/off ([A-Z0-9]+)/);
@@ -48,6 +50,32 @@ const RecommendationsRenderer = ({ recommendationsData }) => {
 
   return (
     <div className="space-y-6">
+      {/* Model ID Popup */}
+      {modelId && showModelIdPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+            <h3 className="text-lg font-bold text-gray-800 mb-4">✅ Recommendation System Built!</h3>
+            <p className="text-sm text-gray-600 mb-4">Store your ID safely for future use:</p>
+            <code className="text-sm bg-gray-100 px-3 py-2 rounded border">{modelId}</code>
+            <button
+              onClick={() => setShowModelIdPopup(false)}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Model ID Display */}
+      {modelId && (
+        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+          ✅ Recommendation System built!&nbsp;
+          <span className="font-medium">Store your ID safely for future use:</span>&nbsp;
+          <code className="text-sm">{modelId}</code>
+        </div>
+      )}
+
       {/* Header Section */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center justify-between mb-4">
@@ -56,12 +84,6 @@ const RecommendationsRenderer = ({ recommendationsData }) => {
             <div>
               <h2 className="text-2xl font-bold text-gray-800">Personalized Rewards</h2>
               <p className="text-gray-600">AI-generated recommendations for your customers</p>
-              {modelId && (
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs">🤖</span>
-                  <span className="text-xs text-gray-500 font-mono">Model: {modelId}</span>
-                </div>
-              )}
             </div>
           </div>
           <div className="text-right">
