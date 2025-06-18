@@ -49,9 +49,6 @@ Many small and medium businesses lack the data expertise to personalize customer
 
 ---
 
-
-## 🤝 Team
-
 ## 🤝 Team
 
 - **Kai Kiat** – Designed and implemented major parts of the frontend UI using React, ensuring responsive and intuitive user interaction. Contributed to frontend-backend integration and played a key role in debugging layout and state management issues.
