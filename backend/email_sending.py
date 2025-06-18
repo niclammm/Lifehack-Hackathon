@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 
 # Load SENDGRID_API_KEY and SENDER from .env
 load_dotenv()
-SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
-SENDER = os.getenv("SENDGRID_SENDER_EMAIL")
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
+SENDER = os.environ.get("SENDGRID_SENDER_EMAIL")
 
 print("API KEY:", SENDGRID_API_KEY)
 print("SENDER:", SENDER)
