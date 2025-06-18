@@ -1,5 +1,3 @@
-
-backend/data/*
 backend/models/*
 backend/recommendations/*
 backend/recommendations_with_emails/*
