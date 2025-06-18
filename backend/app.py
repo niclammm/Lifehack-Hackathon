@@ -34,7 +34,6 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 CORS(app)  # Enable CORS for React frontend
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
-app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Create upload directory if it doesn't exist
@@ -512,6 +511,7 @@ def upload_data_json(num_of_rewards=3):
         print(f"Error type: {type(e)}")
         traceback.print_exc()
         return jsonify({"error": str(e), "status": "error"}), 400
+
 
 
 if __name__ == '__main__':
