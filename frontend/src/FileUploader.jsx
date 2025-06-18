@@ -103,10 +103,9 @@ const FileUploader = () => {
 
   const sendBulkEmails = async () => {
     try {
-      const response = await fetch("https://lifehack-hackathon.onrender.com/send-bulk-email", {
+      const response = await fetch(`https://lifehack-hackathon.onrender.com/send_rewards/${sendModelId}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model_id: sendModelId })
+        headers: { "Content-Type": "application/json" }
       });
 
       const result = await response.json();
