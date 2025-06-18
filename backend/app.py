@@ -5,7 +5,9 @@ import pandas as pd
 import io
 import traceback
 from train_lightfm import train_model
+from email_sending import send_bulk_from_model
 import os
+
 # Column name constants for customers data
 class CustomerHeaders:
     CUSTOMER_ID = 'CustomerID'
@@ -512,7 +514,19 @@ def upload_data_json(num_of_rewards=3):
         traceback.print_exc()
         return jsonify({"error": str(e), "status": "error"}), 400
 
-
+@app.route('/send_rewards/<model_id>', methods=['POST'])
+def send_rewards(model_id):
+    try:
+        sent_count = send_bulk_from_model(model_id)
+        return jsonify({
+            "message": f"Successfully sent {sent_count} reward emails.",
+            "sent_count": sent_count,
+            "status": "success"
+        })
+    except FileNotFoundError as fnf:
+        return jsonify({"error": str(fnf), "status": "error"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e), "status": "error"}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))  # Default to 10000 if PORT not set
