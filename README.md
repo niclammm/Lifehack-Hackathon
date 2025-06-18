@@ -10,6 +10,10 @@
 
 ---
 
+## 📸 Preview
+
+![Loyalytics Screenshot](path/to/screenshot.png)
+
 ## 💡 Inspiration
 
 Many small and medium businesses lack the data expertise to personalize customer engagement at scale. Loyalytics bridges that gap with an intuitive interface and powerful AI recommendations, allowing any business to run effective loyalty campaigns in just a few clicks.
