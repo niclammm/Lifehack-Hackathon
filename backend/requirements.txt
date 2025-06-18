@@ -7,3 +7,4 @@ lightfm==1.17
 scipy==1.13.0
 scikit-learn==1.4.2
 gunicorn
+sendgrid
