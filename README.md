@@ -56,7 +56,6 @@ Many small and medium businesses lack the data expertise to personalize customer
 - **SendGrid API** – Email delivery of rewards  
 - **Render** – Full-stack deployment  
 - **Pandas & NumPy** – Data manipulation  
-- **Dotenv** – Environment variable management
 
 ---
 
