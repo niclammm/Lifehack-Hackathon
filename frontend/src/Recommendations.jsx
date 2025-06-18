@@ -14,6 +14,9 @@ const RecommendationsRenderer = ({ recommendationsData }) => {
     setTimeout(() => setCopiedCode(''), 2000);
   };
 
+  const modelId = recommendationsData?.recommended_rewards?.model_id || 
+                recommendationsData?.model_id || 
+                null;
   const parseReward = (reward) => {
     const discountMatch = reward.match(/(\d+)% off/);
     const productMatch = reward.match(/off ([A-Z0-9]+)/);
@@ -53,6 +56,12 @@ const RecommendationsRenderer = ({ recommendationsData }) => {
             <div>
               <h2 className="text-2xl font-bold text-gray-800">Personalized Rewards</h2>
               <p className="text-gray-600">AI-generated recommendations for your customers</p>
+              {modelId && (
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs">🤖</span>
+                  <span className="text-xs text-gray-500 font-mono">Model: {modelId}</span>
+                </div>
+              )}
             </div>
           </div>
           <div className="text-right">
