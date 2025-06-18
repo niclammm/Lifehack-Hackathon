@@ -1,3 +1,4 @@
+
 backend/data/*
 backend/models/*
 backend/recommendations/*
@@ -10,4 +11,39 @@ backend/recommender.py
 backend/tempCodeRunnerFile.py
 backend/*.npz
 backend/__pycache__/*
+backend/backend/*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Node-related
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Python virtual environments
+.venv/
+venv/
+.python-version
+install-pyenv-win.ps1
+
 .env
+
