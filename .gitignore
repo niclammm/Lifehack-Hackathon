@@ -11,7 +11,7 @@ backend/recommender.py
 backend/tempCodeRunnerFile.py
 backend/*.npz
 backend/__pycache__/*
-
+backend/backend/*
 
 # Logs
 logs
