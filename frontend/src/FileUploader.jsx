@@ -272,10 +272,7 @@ const FileUploader = () => {
                 {analytics ? 'LOADED ✅' : 'NOT LOADED ❌'}
               </span>
             </div>
-            <div>
-              <span className="font-medium">Render Key:</span>
-              <span className="ml-2 px-2 py-1 rounded bg-gray-100 text-gray-700">{renderKey}</span>
-            </div>
+            
           </div>
           {analytics && (
             <div className="mt-2 text-xs text-blue-600">
